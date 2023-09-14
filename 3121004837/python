@@ -33,3 +33,26 @@ texts=[text1,text2]
     test_corpus_1 = dictionary.doc2bow(text1)
     cosine_sim = similarity[test_corpus_1][1]
     return cosine_sim
+
+#从命令行中启动
+if __name__=='__main__':
+    #使用sys库获取命令行参数
+    path1=sys.argv[1]
+    path2=sys.argv[2]
+    path3=sys.argv[3]
+
+    #调用函数获取文件内容
+    str1=get_file(path1)
+    str2=get_file(path2)
+
+    #调用函数过滤内容并分词
+    text1=cut(str1)
+    text2=cut(str2)
+
+    #调用函数计算余弦相似度
+    similarity=calculate_similarity(text1,text2)
+    print(f"文章相似度为：%.2f"%similarity)
+
+    #将结果保存在指定的输出文件中
+    with open(path3,'w',encoding="UTF-8") as f:
+        f.write("文章相似度为：%.2f"%similarity)
