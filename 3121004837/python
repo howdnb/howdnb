@@ -13,3 +13,14 @@ def get_file(path):
            str=str+line
            line=f.readline()
     return str
+
+#将获取到的文本内容使用jieba库进行分词并进行过滤
+def cut(str):
+    str=jieba.cut(str)
+    result=[]
+    for flag in str:     #将文本中除英文和中文外的其它过滤掉
+        if(re.match(u"[a-zA-Z0-9\u4e00-\u9fa5]",flag)):
+            result.append(flag)
+        else:
+            pass
+    return result
