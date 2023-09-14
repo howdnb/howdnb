@@ -24,3 +24,12 @@ def cut(str):
         else:
             pass
     return result
+
+def calculate_similarity(text1,text2):
+texts=[text1,text2]
+    dictionary=gensim.corpora.Dictionary(texts)
+    corpus=[dictionary.doc2bow(text) for text in texts]
+    similarity = gensim.similarities.Similarity('-Similarity-index', corpus, num_features=len(dictionary))
+    test_corpus_1 = dictionary.doc2bow(text1)
+    cosine_sim = similarity[test_corpus_1][1]
+    return cosine_sim
