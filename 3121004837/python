@@ -2,7 +2,9 @@ from simhash import Simhash
 import jieba
 import sys
 import re
-import gensim
+
+#调用line_profiler库对函数进行性能分析
+from line_profiler_pycharm import profile
 
 # 获取文件内容
 def get_file(path):
@@ -25,14 +27,16 @@ def cut(str):
             pass
     return result
 
+#通过使用simhash库计算两个文本相似度
 def calculate_similarity(text1,text2):
-texts=[text1,text2]
-    dictionary=gensim.corpora.Dictionary(texts)
-    corpus=[dictionary.doc2bow(text) for text in texts]
-    similarity = gensim.similarities.Similarity('-Similarity-index', corpus, num_features=len(dictionary))
-    test_corpus_1 = dictionary.doc2bow(text1)
-    cosine_sim = similarity[test_corpus_1][1]
-    return cosine_sim
+    a_simhash = Simhash(text1)
+    b_simhash = Simhash(text2)
+    max_hashbit = max(len(bin(a_simhash.value)), len(bin(b_simhash.value)))
+    # 汉明距离
+    distince = a_simhash.distance(b_simhash)
+    print(distince)
+    similar = 1 - distince / max_hashbit
+    return similar
 
 #从命令行中启动
 if __name__=='__main__':
