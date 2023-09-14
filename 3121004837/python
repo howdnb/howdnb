@@ -1,0 +1,15 @@
+from simhash import Simhash
+import jieba
+import sys
+import re
+import gensim
+
+# 获取文件内容
+def get_file(path):
+    with open(path,'r',encoding="UTF-8") as f:
+       line = f.readline()
+       str=""
+       while line:
+           str=str+line
+           line=f.readline()
+    return str
