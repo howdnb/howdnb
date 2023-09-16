@@ -40,6 +40,10 @@ def calculate_similarity(text1,text2):
 
 #从命令行中启动
 if __name__=='__main__':
+    if len(sys.argv)!=4:
+        print("传入参数数量错误！")
+        exit()
+
     #使用sys库获取命令行参数
     path1=sys.argv[1]
     path2=sys.argv[2]
