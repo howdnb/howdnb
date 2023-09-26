@@ -1,8 +1,127 @@
+import random
+from fractions import Fraction
+
+space = ' '
 x = 0  # 全局变量
+num = 0
+
+
+def create_fraction(maxnum):
+    maxnum = int(maxnum)
+    denominator = random.randint(1, maxnum)
+    numerator = random.randint(0, maxnum)
+    if numerator % denominator == 0:
+        return str(int(numerator / denominator))
+    elif numerator > denominator:
+        integer = int(numerator / denominator)
+        numerator -= (denominator * integer)
+        return str(integer) + "'" + str(numerator) + "/" + str(denominator)
+    return str(numerator) + "/" + str(denominator)
+
+
+def Digit(count, maxnum):  # count为算式个数
+    digit = []
+    for i in range(count):
+        flag = random.randint(0, 1)  # 0为整数，1为分数
+        if flag == 0:
+            digit.append(str(random.randint(0, maxnum)))
+        else:
+            digit.append(create_fraction(maxnum))
+    return digit
+
+
+def Operator(count):
+    operator = ['+', '-', '×', '÷']
+    saveop = []
+    for i in range(count - 1):
+        saveop.append(random.choice(operator))
+    return saveop
+
+
+# 无括号
+def noBracketFormula(count, maxnum):
+    digit = Digit(count, maxnum)
+    op = Operator(count)
+    formula = digit[0] + space
+    for i in range(1, count):
+        formula += op[i - 1] + space + digit[i] + space
+    formula = formula[:-1]
+    return formula
+
+
+# 一个括号
+def oneBracketFormula(count, maxnum):
+    digit = Digit(count, maxnum)
+    op = Operator(count)
+    left = random.randint(0, count - 2)
+    right = random.randint(left + 1, count - 1)
+    formula = ""
+    if left == 0:
+        formula = '(' + space + digit[0] + space
+    else:
+        formula = digit[0] + space
+    for i in range(1, count):
+        if i == left:
+            formula += op[i - 1] + space + '(' + space + digit[i] + space
+        elif i == right:
+            formula += op[i - 1] + space + digit[i] + space + ')' + space
+        else:
+            formula += op[i - 1] + space + digit[i] + space
+    formula = formula[:-1]
+    return formula
+
+
+# 两个括号
+def twoBracketFormula(count, maxnum):
+    digit = Digit(count, maxnum)
+    op = Operator(count)
+    flag = random.randint(0, 1)
+    formula = ""
+    if flag == 0:
+        formula = '(' + space + digit[0] + space
+        for i in range(1, count):
+            if i == 1 or i == 3:
+                formula += op[i - 1] + space + digit[i] + space + ')' + space
+            elif i == 2:
+                formula += op[i - 1] + space + '(' + space + digit[i] + space
+        formula = formula[:-1]
+    elif flag == 1:
+        area = random.randint(0, 1)  # 0表示左括号一起，1表示右括号一起
+        if area == 0:
+            formula += conBracket(count, formula, digit, op, '(', ')')
+            formula = formula[:-1]
+        elif area == 1:
+            s = conBracket(count, formula, digit, op, ')', '(')
+            s_list = s.split(" ")
+            s_list = s_list[-1::-1]
+            out = ' '.join(s_list)
+            if out[0] == ' ':
+                out = out[1:]
+            formula += out
+    return formula
+
+
+def conBracket(count, formula, digit, op, str1, str2):
+    left = random.randint(0, 1)
+    if left == 0:
+        formula += str1 + space + str1 + space + digit[0] + space
+        for i in range(1, count):
+            if i != count - 1:
+                formula += op[i - 1] + space + digit[i] + space + str2 + space
+            else:
+                formula += op[i - 1] + space + digit[i] + space
+    else:
+        formula += digit[0] + space
+        for i in range(1, count):
+            if i == 1:
+                formula += op[i - 1] + space + str1 + space + str1 + space + digit[i] + space
+            else:
+                formula += op[i - 1] + space + digit[i] + space + str2 + space
+    return formula
 
 
 class Change:
-    exp = "3 + 2 - 2 + 3 * 2"
+    exp = ""
 
     def suffix(self):
         if not self.exp:  # 如果传入字符串空
@@ -10,15 +129,14 @@ class Change:
             return []
         symbol = {'+': 1,  # 用字典将四个运算符的优先级进行划分
                   '-': 1,
-                  '*': 2,
-                  '/': 2
+                  '×': 2,
+                  '÷': 2
                   }
         suffix_list = []  # 后缀表达式栈
         symbol_list = []  # 字符栈
         infix = self.exp.split(' ')  # 将中缀表达式根据空格进行分割
-
         for i in infix:
-            if i in ['+', '-', '*', '/']:
+            if i in ['+', '-', '×', '÷']:
                 while len(symbol_list) >= 0:
                     if len(symbol_list) == 0:  # 如果字符栈空
                         symbol_list.append(i)
@@ -49,18 +167,18 @@ class Change:
         return suffix_list
 
     def calculate(self):
-        global x
+        global x, num
         cal_list = self.suffix()
         num_list = []
         for i in cal_list:
-            if i in ['+', '-', '*', '/']:
-                first = int(num_list.pop())  # 将字符变成整数取出
-                second = int(num_list.pop())
+            if i in ['+', '-', '×', '÷']:
+                first = num_list.pop()
+                second = num_list.pop()
                 if i == '+':
                     result = second + first
                 elif i == '-':
                     result = second - first
-                elif i == '*':
+                elif i == '×':
                     result = second * first
                 else:
                     if first == 0:
@@ -68,23 +186,63 @@ class Change:
                     else:
                         result = second / first
                 num_list.append(result)
-            else:
-                num_list.append(i)
+            else:  # 将字符型转化为整型 将带分数转化为假分数并通过Fraction使分数之间可直接计算
+                if i.find('/') > 0:
+                    if i.find("'") > 0:  # 带分数
+                        parts = i.split("'")  # 以带分数的点进行切割
+                        attach = int(parts[0])
+                        right = parts[1]
+                    else:  # 若不是带分数
+                        attach = 0
+                        right = i
+                    parts = right.split('/')
+                    result = Fraction(attach * int(parts[1]) + int(parts[0]), int(parts[1]))
+                    num_list.append(result)
+                else:  # 若不是分数，转为整型即可
+                    num_list.append(Fraction(int(i), 1))
 
         answer = num_list.pop()
 
         if answer < 0:
-            return
+            pass
         else:
+            num += 1
             x += 1
-            with open('D:\\pythonProject\\四则运算\\Exercises.txt', 'a', encoding="UTF-8") as f:
+            with open('Exercises.txt', 'a', encoding="UTF-8") as f:
                 print(f"Question {x}:  {self.exp} =", file=f)
-            with open('D:\\pythonProject\\四则运算\\Answers.txt', 'a', encoding="UTF-8") as f:
+            with open('Answers.txt', 'a', encoding="UTF-8") as f:
                 print(f"Answer {x}:  {answer}", file=f)
 
-        print(f"{answer}")
-    # return int(num_list.pop())
+
+def main():
+    global num  # 控制while循环是否继续运行
+
+    file = open('Exercises.txt', 'w').close()  # 清空上一次的内容
+    file = open('Answers.txt', 'w').close()
+
+    maxnum = int(input("请输入最大范围："))
+    maxdigit = int(input("请输入生成题目个数："))  # while循环终止条件
+    while num < maxdigit:
+        count = random.randint(2, 4)
+        if count == 2:
+            question = noBracketFormula(count, maxnum)
+        elif count == 3:
+            choice = random.randint(0, 1)
+            if choice == 0:
+                question = noBracketFormula(count, maxnum)
+            elif choice == 1:
+                question = oneBracketFormula(count, maxnum)
+        elif count == 4:
+            choice = random.randint(0, 2)
+            if choice == 0:
+                question = noBracketFormula(count, maxnum)
+            elif choice == 1:
+                question = oneBracketFormula(count, maxnum)
+            elif choice == 2:
+                question = twoBracketFormula(count, maxnum)
+        number = Change()
+        number.exp = question
+        number.calculate()
 
 
-number = Change()
-number.calculate()
+main()
