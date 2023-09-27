@@ -1,6 +1,8 @@
 import random
 import re
 from fractions import Fraction
+# 用于效能分析
+from line_profiler_pycharm import profile
 
 space = ' '
 num = 0  # 记录题目生成个数
@@ -120,6 +122,17 @@ def conBracket(count, formula, digit, op, str1, str2):
     return formula
 
 
+def changeFaction(answer):
+    numerator = int(answer.numerator)
+    denominator = answer.denominator
+    if answer.denominator == 1 or answer < 1:
+        return answer
+    else:
+        integer = int(numerator / denominator)
+        numerator -= (denominator * integer)
+        return str(integer) + "'" + str(numerator) + "/" + str(denominator)
+
+
 class Change:
     exp = ""
 
@@ -204,6 +217,7 @@ class Change:
                     num_list.append(Fraction(int(i), 1))
 
         answer = num_list.pop()
+        answer = changeFaction(answer)
         num += 1  # 控制题目生成个数
         print(f"题目:\n{self.exp}")
         answer_input = input("请输入答案：")
@@ -255,13 +269,21 @@ def check(input_file, answer_file):  # 检查答案
 
 def main():
     global num  # 控制while循环是否继续运行
+    question = ""
+    flag = True
+    maxnum = 0
 
     file = open('Exercises.txt', 'w').close()  # 清空上一次的内容
     file = open('Answers.txt', 'w').close()
     file = open('Answer_input.txt', 'w').close()
     file = open('Grade.txt', 'w').close()
 
-    maxnum = int(input("请输入最大范围："))
+    while flag == True:
+        maxnum = int(input("请输入最大范围（1-9）："))
+        if maxnum <= 0 or maxnum > 9:
+            print("输入错误，输入范围为1-9，请重新输入")
+        else:
+            flag = False
     maxdigit = int(input("请输入生成题目个数："))  # while循环终止条件
     while num < maxdigit:
         count = random.randint(2, 4)
