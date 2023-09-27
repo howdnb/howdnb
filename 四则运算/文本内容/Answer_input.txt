@@ -1,0 +1,10 @@
+Answer_input 1:  7
+Answer_input 2:  12/7
+Answer_input 3:  18/5
+Answer_input 4:  2
+Answer_input 5:  8
+Answer_input 6:  1
+Answer_input 7:  18/7
+Answer_input 8:  1/28
+Answer_input 9:  15/2
+Answer_input 10:  4
